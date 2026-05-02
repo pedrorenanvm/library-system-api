@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import isAuthenticate from '../middlewares/isAutenticate';
 import isTeacher from '../middlewares/isTeacher';
 import authRoutes from '@modules/auth/infra/http/routes/AuthRoutes';
+import userRoutes from '@modules/user/infra/http/routes/UserRoutes';
 
 const routes = Router();
 
@@ -15,5 +16,5 @@ routes.get(
 );
 
 routes.use('/v1/api/auth', authRoutes);
-
+routes.use('/v1/api/leitores', userRoutes);
 export default routes;
