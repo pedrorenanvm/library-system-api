@@ -2,6 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
+
+
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "module": "CommonJS",
@@ -18,7 +20,7 @@
       "@shared/*": ["./src/shared/*"],
       "@helpers/*": ["./src/helpers/*"]
     },
-    "types": ["node"],
+    "types": ["node","jest"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -26,5 +28,9 @@
     "skipLibCheck": true
   },
   "exclude": ["node_modules", "dist", "build"],
-  "include": ["src/**/*"]
+    "include": [
+    "src/**/*",
+    "test/**/*"
+  ]
+
 }
