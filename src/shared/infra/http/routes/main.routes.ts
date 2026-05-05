@@ -16,5 +16,5 @@ routes.get(
 );
 
 routes.use('/v1/api/auth', authRoutes);
-routes.use('/v1/api/leitores', userRoutes);
+routes.use('/v1/api/readers', userRoutes);
 export default routes;
