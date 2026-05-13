@@ -3,6 +3,7 @@ import isAuthenticate from '../middlewares/isAutenticate';
 import isTeacher from '../middlewares/isTeacher';
 import authRoutes from '@modules/auth/infra/http/routes/AuthRoutes';
 import userRoutes from '@modules/user/infra/http/routes/UserRoutes';
+import titleRoutes from '@modules/title/infra/http/routes/TitleRoutes';
 
 const routes = Router();
 
@@ -17,4 +18,6 @@ routes.get(
 
 routes.use('/v1/api/auth', authRoutes);
 routes.use('/v1/api/readers', userRoutes);
+routes.use('/v1/api/titles', titleRoutes);
+
 export default routes;
