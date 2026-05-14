@@ -11,6 +11,8 @@ import { ILoanRepository } from '@modules/loan/domain/repositories/ILoanReposito
 import { LoanRepository } from '@modules/loan/infra/typeorm/repositories/LoanRepository';
 
 import { REPOSITORY_KEYS } from './keys';
+import { FineRepository } from '@modules/fine/infra/typeorm/repositories/FineRepository';
+import { IFineRepository } from '@modules/fine/domain/repositories/IFineRepository';
 
 container.registerSingleton<IUserRepository>(
   REPOSITORY_KEYS.UserRepository,
@@ -20,9 +22,14 @@ container.registerSingleton<IUserRepository>(
 container.registerSingleton<ITitleRepository>(
   REPOSITORY_KEYS.TitleRepository,
   TitleRepository
-)
+);
 
 container.registerSingleton<ILoanRepository>(
   REPOSITORY_KEYS.LoanRepository,
   LoanRepository
-)
+);
+
+container.registerSingleton<IFineRepository>(
+  REPOSITORY_KEYS.FineRepository,
+  FineRepository
+);
