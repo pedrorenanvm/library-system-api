@@ -14,6 +14,9 @@ import { REPOSITORY_KEYS } from './keys';
 import { FineRepository } from '@modules/fine/infra/typeorm/repositories/FineRepository';
 import { IFineRepository } from '@modules/fine/domain/repositories/IFineRepository';
 
+import { ICopyRepository } from '@modules/copy/domain/repositories/ICopyRepository';
+import { CopyRepository } from '@modules/copy/infra/typeorm/repositories/CopyRepository';
+
 container.registerSingleton<IUserRepository>(
   REPOSITORY_KEYS.UserRepository,
   UserRepository
@@ -22,6 +25,12 @@ container.registerSingleton<IUserRepository>(
 container.registerSingleton<ITitleRepository>(
   REPOSITORY_KEYS.TitleRepository,
   TitleRepository
+);
+
+container.registerSingleton<ICopyRepository>(
+  REPOSITORY_KEYS.CopyRepository,
+  CopyRepository
+
 );
 
 container.registerSingleton<ILoanRepository>(

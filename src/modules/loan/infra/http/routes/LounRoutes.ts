@@ -24,4 +24,19 @@ loanRoutes.post(
   (req, res) => loanController.create(req, res)
 );
 
+loanRoutes.put(
+  '/:id/devolucao',
+  isAuthenticate,
+  celebrate({
+    [Segments.PARAMS]: Joi.object({
+      id: Joi.string().uuid().required().messages({
+        'string.guid': 'O ID do empréstimo deve ser um UUID válido.',
+        'any.required': 'O ID do empréstimo é obrigatório.',
+      }),
+    }),
+  }),
+  (req, res) => loanController.return(req, res)
+);
+
+
 export default loanRoutes;

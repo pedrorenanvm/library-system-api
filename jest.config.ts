@@ -8,6 +8,7 @@ const config: Config = {
     '^@modules/(.*)$': '<rootDir>/src/modules/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
     '^@config/(.*)$': '<rootDir>/src/config/$1',
+    '^@helpers/(.*)$': '<rootDir>/src/helpers/$1',
   },
   testMatch: ['**/*.spec.ts'],
   clearMocks: true,
