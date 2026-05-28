@@ -1,5 +1,5 @@
 import type { Config } from 'jest';
- 
+
 const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
@@ -8,6 +8,7 @@ const config: Config = {
     '^@modules/(.*)$': '<rootDir>/src/modules/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
     '^@config/(.*)$': '<rootDir>/src/config/$1',
+    '^@helpers/(.*)$': '<rootDir>/src/helpers/$1',
   },
   testMatch: ['**/*.spec.ts'],
   clearMocks: true,
@@ -15,5 +16,5 @@ const config: Config = {
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }],
   },
 };
- 
+
 export default config;
