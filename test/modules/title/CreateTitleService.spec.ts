@@ -6,15 +6,14 @@ import { ICreateTitle } from '@modules/title/domain/models/ICreateTitle';
 import { TitleType } from '@modules/title/infra/typeorm/entities/Title';
 import AppError from '@shared/errors/AppError';
 
-
 const makeTitleRepositoryMock = (): jest.Mocked<ITitleRepository> => ({
   findById: jest.fn(),
   findByName: jest.fn(),
+  findAll: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
 });
-
 
 const makeTitleStub = (overrides: Partial<ITitle> = {}): ITitle => ({
   id: 'uuid-title-001',
@@ -28,7 +27,6 @@ const makeTitleStub = (overrides: Partial<ITitle> = {}): ITitle => ({
   deletedAt: null,
   ...overrides,
 });
-
 
 describe('CreateTitleService', () => {
   let sut: CreateTitleService;
@@ -200,3 +198,4 @@ describe('CreateTitleService', () => {
     });
   });
 });
+
