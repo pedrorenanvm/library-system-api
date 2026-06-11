@@ -5,6 +5,7 @@ import { ITitle } from '@modules/title/domain/models/ITitle';
 import { ICreateTitle } from '@modules/title/domain/models/ICreateTitle';
 import { IGetTitleFilters } from '@modules/title/domain/models/IGetTitleFilters';
 import { ITitlePaginate } from '@modules/title/domain/models/ITitlePaginate';
+import { AppDataSource } from '@shared/infra/typeorm/dataSource';
 
 export class TitleRepository implements ITitleRepository {
   private ormRepository: Repository<Title>;
