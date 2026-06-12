@@ -7,7 +7,7 @@ export function globalErrorHandler(
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) {
   if (isCelebrateError(err)) {
     const validationErrors: string[] = [];

@@ -17,6 +17,12 @@ import { IFineRepository } from '@modules/fine/domain/repositories/IFineReposito
 import { ICopyRepository } from '@modules/copy/domain/repositories/ICopyRepository';
 import { CopyRepository } from '@modules/copy/infra/typeorm/repositories/CopyRepository';
 
+import { IReservedTitleRepository } from '@modules/reservedTitle/domain/repositories/IReservedTitleRepository';
+import { ReservedTitleRepository } from '@modules/reservedTitle/infra/typeorm/repositories/ReservedTitleRepository';
+
+import { ISubscriptionRepository } from '@modules/subscription/domain/repositories/ISubscriptionRepository';
+import { SubscriptionRepository } from '@modules/subscription/infra/typeorm/repositories/SubscriptionRepository';
+
 container.registerSingleton<IUserRepository>(
   REPOSITORY_KEYS.UserRepository,
   UserRepository
@@ -41,4 +47,14 @@ container.registerSingleton<ILoanRepository>(
 container.registerSingleton<IFineRepository>(
   REPOSITORY_KEYS.FineRepository,
   FineRepository
+);
+
+container.registerSingleton<IReservedTitleRepository>(
+  REPOSITORY_KEYS.ReservedTitleRepository,
+  ReservedTitleRepository
+);
+
+container.registerSingleton<ISubscriptionRepository>(
+  REPOSITORY_KEYS.SubscriptionRepository,
+  SubscriptionRepository
 );
