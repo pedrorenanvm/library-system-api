@@ -7,5 +7,5 @@ export interface IFineRepository {
   create(data: ICreateFine): Promise<IFine>;
   update(fine: IFine): Promise<IFine>;
   delete(id: string): Promise<void>;
-  findPendingByUserId(userId: string): Promise<IFine | null>;
+  findPendingByUserId(userId: string): Promise<IFine[]>;
 }

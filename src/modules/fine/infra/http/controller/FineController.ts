@@ -1,5 +1,6 @@
 import CreateFineService from '@modules/fine/services/CreateFineService';
 import PayFineService from '@modules/fine/services/PayFineService';
+import { ViewFineByUser } from '@modules/fine/services/ViewFineByUser';
 import ViewFineService from '@modules/fine/services/ViewFineService';
 import { instanceToPlain } from 'class-transformer';
 import { Request, Response } from 'express';
@@ -24,6 +25,13 @@ export default class FineController {
     const { id } = req.params;
     const payFine = container.resolve(PayFineService);
     const fine = await payFine.execute(id);
+    return res.status(200).json(instanceToPlain(fine));
+  }
+
+  async viewFineByUser(req: Request, res: Response): Promise<Response> {
+    const { userId } = req.params;
+    const viewByUser = container.resolve(ViewFineByUser);
+    const fine = viewByUser.execute(userId);
     return res.status(200).json(instanceToPlain(fine));
   }
 }

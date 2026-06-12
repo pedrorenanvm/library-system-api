@@ -30,14 +30,11 @@ export class FineRepository implements IFineRepository {
     await this.ormRepository.save(fine);
     return fine;
   }
-  async findPendingByUserId(userId: string): Promise<IFine | null> {
-    return (
-      this.ormRepository
-        .createQueryBuilder('fine')
-        .innerJoin('fine.loan', 'loan')
-        .where('loan.userId = :userId', { userId })
-        .andWhere('fine.status = :status', { status: FineStatus.PENDING })
-        .getOne() ?? null
-    );
+  async findPendingByUserId(userId: string): Promise<IFine[]> {
+    return this.ormRepository
+      .createQueryBuilder('fine')
+      .innerJoin('fine.loan', 'loan')
+      .where('loan.userId = :userId', { userId })
+      .getMany();
   }
 }
