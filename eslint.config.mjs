@@ -31,6 +31,15 @@ export default [
   },
   {
     name: 'Prettier Config',
-    rules: eslintConfigPrettier.rules,
+    rules: {
+    ...pluginJs.configs.recommended.rules,
+    ...tseslint.configs.recommended.rules,
+    semi: ['error', 'always'],
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-unused-vars': [   
+      'error',
+      { argsIgnorePattern: '^_' },           
+    ],
+    },
   },
 ];

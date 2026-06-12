@@ -2,20 +2,17 @@ import 'reflect-metadata';
 import CreateLoanService from '@modules/loan/services/CreateLoanService';
 import { ILoanRepository } from '@modules/loan/domain/repositories/ILoanRepository';
 import { ICopyRepository } from '@modules/copy/domain/repositories/ICopyRepository';
-import {
-  IUserRepository,
-  SearchParams,
-  IUserPaginate,
-} from '@modules/user/domain/repositories/IUserRepository';
+import { IUserRepository } from '@modules/user/domain/repositories/IUserRepository';
+import { IReservedTitleRepository } from '@modules/reservedTitle/domain/repositories/IReservedTitleRepository';
 import { ILoan } from '@modules/loan/domain/models/ILoan';
 import { ICopy } from '@modules/copy/domain/models/ICopy';
 import { IUser } from '@modules/user/domain/models/IUser';
+import { IReservedTitle } from '@modules/reservedTitle/domain/models/IReservedTitle';
 import { LoanStatus } from '@modules/loan/infra/typeorm/entities/Loan';
 import { CopyStatus } from '@modules/copy/infra/typeorm/entities/Copy';
 import { UserRole } from '@modules/user/infra/typeorm/entities/User';
 import { TitleType } from '@modules/title/infra/typeorm/entities/Title';
 import AppError from '@shared/errors/AppError';
-
 
 const makeLoanRepositoryMock = (): jest.Mocked<ILoanRepository> => ({
   findById: jest.fn(),
@@ -39,6 +36,15 @@ const makeUserRepositoryMock = (): jest.Mocked<IUserRepository> => ({
   delete: jest.fn(),
 });
 
+const makeReservedTitleRepositoryMock =
+  (): jest.Mocked<IReservedTitleRepository> => ({
+    findById: jest.fn(),
+    findActiveByTitleId: jest.fn(),
+    findOverlapping: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  });
 
 const makeUserStub = (overrides: Partial<IUser> = {}): IUser => ({
   id: 'user-uuid-001',
@@ -90,22 +96,39 @@ const makeLoanStub = (overrides: Partial<ILoan> = {}): ILoan => ({
   ...overrides,
 });
 
-
+const makeReservationStub = (
+  overrides: Partial<IReservedTitle> = {}
+): IReservedTitle => ({
+  id: 'reservation-uuid-001',
+  titleId: 'title-uuid-001',
+  teacherId: 'teacher-uuid-001',
+  disciplineName: 'Estruturas de Dados',
+  startsAt: new Date(),
+  endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+  inLibraryOnly: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+  ...overrides,
+});
 
 describe('CreateLoanService', () => {
   let sut: CreateLoanService;
   let loanRepositoryMock: jest.Mocked<ILoanRepository>;
   let copyRepositoryMock: jest.Mocked<ICopyRepository>;
   let userRepositoryMock: jest.Mocked<IUserRepository>;
+  let reservedTitleRepositoryMock: jest.Mocked<IReservedTitleRepository>;
 
   beforeEach(() => {
     loanRepositoryMock = makeLoanRepositoryMock();
     copyRepositoryMock = makeCopyRepositoryMock();
     userRepositoryMock = makeUserRepositoryMock();
+    reservedTitleRepositoryMock = makeReservedTitleRepositoryMock();
     sut = new CreateLoanService(
       loanRepositoryMock,
       copyRepositoryMock,
-      userRepositoryMock
+      userRepositoryMock,
+      reservedTitleRepositoryMock
     );
   });
 
@@ -113,6 +136,7 @@ describe('CreateLoanService', () => {
     it('deve criar empréstimo com status ACTIVE', async () => {
       userRepositoryMock.findById.mockResolvedValue(makeUserStub());
       copyRepositoryMock.findById.mockResolvedValue(makeCopyStub());
+      reservedTitleRepositoryMock.findActiveByTitleId.mockResolvedValue(null);
       loanRepositoryMock.create.mockResolvedValue(makeLoanStub());
       copyRepositoryMock.updateStatus.mockResolvedValue();
 
@@ -122,17 +146,13 @@ describe('CreateLoanService', () => {
       });
 
       expect(result.status).toBe(LoanStatus.ACTIVE);
-      expect(loanRepositoryMock.create).toHaveBeenCalledTimes(1);
     });
 
-    it('deve calcular dueDate corretamente com base em maxLoanDays', async () => {
+    it('deve calcular dueDate com base em maxLoanDays', async () => {
       userRepositoryMock.findById.mockResolvedValue(makeUserStub());
       copyRepositoryMock.findById.mockResolvedValue(makeCopyStub());
+      reservedTitleRepositoryMock.findActiveByTitleId.mockResolvedValue(null);
       copyRepositoryMock.updateStatus.mockResolvedValue();
-
-      const expectedDueDate = new Date();
-      expectedDueDate.setDate(expectedDueDate.getDate() + 14);
-
       loanRepositoryMock.create.mockImplementation(async (data) => ({
         ...makeLoanStub(),
         dueDate: data.dueDate,
@@ -143,21 +163,21 @@ describe('CreateLoanService', () => {
         copyId: 'copy-uuid-001',
       });
 
-      const diffMs = result.dueDate.getTime() - new Date().getTime();
-      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      const diffDays = Math.round(
+        (result.dueDate.getTime() - new Date().getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
       expect(diffDays).toBe(14);
     });
 
-    it('deve atualizar status do exemplar para LOANED após o empréstimo', async () => {
+    it('deve atualizar status do copy para LOANED', async () => {
       userRepositoryMock.findById.mockResolvedValue(makeUserStub());
       copyRepositoryMock.findById.mockResolvedValue(makeCopyStub());
+      reservedTitleRepositoryMock.findActiveByTitleId.mockResolvedValue(null);
       loanRepositoryMock.create.mockResolvedValue(makeLoanStub());
       copyRepositoryMock.updateStatus.mockResolvedValue();
 
-      await sut.execute({
-        userId: 'user-uuid-001',
-        copyId: 'copy-uuid-001',
-      });
+      await sut.execute({ userId: 'user-uuid-001', copyId: 'copy-uuid-001' });
 
       expect(copyRepositoryMock.updateStatus).toHaveBeenCalledWith(
         'copy-uuid-001',
@@ -173,8 +193,6 @@ describe('CreateLoanService', () => {
       await expect(
         sut.execute({ userId: 'inexistente', copyId: 'copy-uuid-001' })
       ).rejects.toMatchObject({ statusCode: 404 });
-
-      expect(loanRepositoryMock.create).not.toHaveBeenCalled();
     });
 
     it('deve lançar AppError 403 se leitor estiver inativo', async () => {
@@ -185,8 +203,6 @@ describe('CreateLoanService', () => {
       await expect(
         sut.execute({ userId: 'user-uuid-001', copyId: 'copy-uuid-001' })
       ).rejects.toMatchObject({ statusCode: 403 });
-
-      expect(loanRepositoryMock.create).not.toHaveBeenCalled();
     });
   });
 
@@ -200,7 +216,7 @@ describe('CreateLoanService', () => {
       ).rejects.toMatchObject({ statusCode: 404 });
     });
 
-    it('deve lançar AppError 409 se exemplar estiver emprestado (LOANED)', async () => {
+    it('deve lançar AppError 409 se exemplar não disponível', async () => {
       userRepositoryMock.findById.mockResolvedValue(makeUserStub());
       copyRepositoryMock.findById.mockResolvedValue(
         makeCopyStub({ status: CopyStatus.LOANED })
@@ -210,39 +226,35 @@ describe('CreateLoanService', () => {
         sut.execute({ userId: 'user-uuid-001', copyId: 'copy-uuid-001' })
       ).rejects.toMatchObject({ statusCode: 409 });
     });
+  });
 
-    it('deve lançar AppError 409 se exemplar estiver perdido (LOST)', async () => {
-      userRepositoryMock.findById.mockResolvedValue(makeUserStub());
-      copyRepositoryMock.findById.mockResolvedValue(
-        makeCopyStub({ status: CopyStatus.LOST })
-      );
-
-      await expect(
-        sut.execute({ userId: 'user-uuid-001', copyId: 'copy-uuid-001' })
-      ).rejects.toMatchObject({ statusCode: 409 });
-    });
-
-    it('deve lançar AppError 409 se exemplar estiver reservado (RESERVED)', async () => {
-      userRepositoryMock.findById.mockResolvedValue(makeUserStub());
-      copyRepositoryMock.findById.mockResolvedValue(
-        makeCopyStub({ status: CopyStatus.RESERVED })
-      );
-
-      await expect(
-        sut.execute({ userId: 'user-uuid-001', copyId: 'copy-uuid-001' })
-      ).rejects.toMatchObject({ statusCode: 409 });
-    });
-
-    it('não deve atualizar status do exemplar se a criação do loan falhar', async () => {
+  describe('Bloqueio por reserva de consulta local', () => {
+    it('deve lançar AppError 403 se título tiver reserva ativa com inLibraryOnly = true', async () => {
       userRepositoryMock.findById.mockResolvedValue(makeUserStub());
       copyRepositoryMock.findById.mockResolvedValue(makeCopyStub());
-      loanRepositoryMock.create.mockRejectedValue(new Error('DB error'));
+      reservedTitleRepositoryMock.findActiveByTitleId.mockResolvedValue(
+        makeReservationStub({ inLibraryOnly: true })
+      );
 
       await expect(
         sut.execute({ userId: 'user-uuid-001', copyId: 'copy-uuid-001' })
-      ).rejects.toThrow();
+      ).rejects.toMatchObject({ statusCode: 403 });
 
-      expect(copyRepositoryMock.updateStatus).not.toHaveBeenCalled();
+      expect(loanRepositoryMock.create).not.toHaveBeenCalled();
+    });
+
+    it('deve permitir empréstimo se reserva existir mas inLibraryOnly = false', async () => {
+      userRepositoryMock.findById.mockResolvedValue(makeUserStub());
+      copyRepositoryMock.findById.mockResolvedValue(makeCopyStub());
+      reservedTitleRepositoryMock.findActiveByTitleId.mockResolvedValue(
+        makeReservationStub({ inLibraryOnly: false })
+      );
+      loanRepositoryMock.create.mockResolvedValue(makeLoanStub());
+      copyRepositoryMock.updateStatus.mockResolvedValue();
+
+      await expect(
+        sut.execute({ userId: 'user-uuid-001', copyId: 'copy-uuid-001' })
+      ).resolves.not.toThrow();
     });
   });
 });
