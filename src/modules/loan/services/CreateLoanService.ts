@@ -7,6 +7,7 @@ import { ILoan } from '@modules/loan/domain/models/ILoan';
 import { LoanStatus } from '@modules/loan/infra/typeorm/entities/Loan';
 import { CopyStatus } from '@modules/copy/infra/typeorm/entities/Copy';
 import AppError from '@shared/errors/AppError';
+import { IReservedTitleRepository } from '@modules/reservedTitle/domain/repositories/IReservedTitleRepository';
 
 interface IRequest {
   userId: string;
@@ -23,7 +24,10 @@ class CreateLoanService {
     private copyRepository: ICopyRepository,
 
     @inject(REPOSITORY_KEYS.UserRepository)
-    private userRepository: IUserRepository
+    private userRepository: IUserRepository,
+
+    @inject(REPOSITORY_KEYS.ReservedTitleRepository)
+    private reservedTitleRepository: IReservedTitleRepository
   ) {}
 
   public async execute({ userId, copyId }: IRequest): Promise<ILoan> {
@@ -56,6 +60,17 @@ class CreateLoanService {
       );
     }
 
+    const activeReservation =
+      await this.reservedTitleRepository.findActiveByTitleId(
+        copy.titleId,
+        new Date()
+      );
+    if (activeReservation?.inLibraryOnly) {
+      throw new AppError(
+        `Este título está reservado para consulta local na disciplina "${activeReservation.disciplineName}". Empréstimos externos não são permitidos neste período.`,
+        403
+      );
+    }
 
     const loanedAt = new Date();
     const dueDate = new Date(loanedAt);

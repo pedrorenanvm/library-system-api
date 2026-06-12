@@ -6,6 +6,7 @@ import userRoutes from '@modules/user/infra/http/routes/UserRoutes';
 import titleRoutes from '@modules/title/infra/http/routes/TitleRoutes';
 import loanRoutes from '@modules/loan/infra/http/routes/LounRoutes';
 import fineRoutes from '@modules/fine/infra/http/routes/FineRoutes';
+import reservedTitleRoutes from '@modules/reservedTitle/infra/http/routes/ReservedTitleRoutes';
 
 const routes = Router();
 
@@ -23,5 +24,6 @@ routes.use('/v1/api/readers', userRoutes);
 routes.use('/v1/api/titles', titleRoutes);
 routes.use('/v1/api/loans', loanRoutes);
 routes.use('/v1/api/fines', fineRoutes);
+routes.use('/v1/api/reserved-titles', reservedTitleRoutes);
 
 export default routes;
