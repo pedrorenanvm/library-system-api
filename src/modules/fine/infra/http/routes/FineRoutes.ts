@@ -42,4 +42,13 @@ fineRoutes.post(
   (req, res) => fineController.pay(req, res)
 );
 
+fineRoutes.get(
+  '/info/:userId',
+  isAuthenticate,
+  isTeacher,
+  celebrate({
+    [Segments.PARAMS]: Joi.object({ userId: Joi.string().uuid().required() }),
+  }),
+  (req, res) => fineController.viewFineByUser(req, res)
+);
 export default fineRoutes;

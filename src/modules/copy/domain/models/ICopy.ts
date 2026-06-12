@@ -11,3 +11,4 @@ export interface ICopy {
   updatedAt: Date;
   deletedAt: Date | null;
 }
+
