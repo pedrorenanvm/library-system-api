@@ -16,6 +16,14 @@ export class LoanRepository implements ILoanRepository {
     return await this.ormRepository.findOne({ where: { id } });
   }
 
+  async findByUserId(userId: string): Promise<ILoan[]> {
+    return await this.ormRepository.find({
+      where: { userId },
+      relations: ['copy', 'copy.title', 'fine'],
+      order: { loanedAt: 'DESC' },
+    });
+  }
+
   async create(data: ICreateLoan): Promise<ILoan> {
     const loan = this.ormRepository.create(data);
     await this.ormRepository.save(loan);

@@ -6,6 +6,20 @@ import LoanController from '../controllers/LoanController';
 const loanRoutes = Router();
 const loanController = new LoanController();
 
+loanRoutes.get(
+  '/',
+  isAuthenticate,
+  celebrate({
+    [Segments.QUERY]: Joi.object({
+      userId: Joi.string().uuid().required().messages({
+        'string.guid': 'userId deve ser um UUID válido.',
+        'any.required': 'userId é obrigatório.',
+      }),
+    }),
+  }),
+  (req, res) => loanController.listByUser(req, res)
+);
+
 loanRoutes.post(
   '/',
   isAuthenticate,
@@ -37,6 +51,5 @@ loanRoutes.put(
   }),
   (req, res) => loanController.return(req, res)
 );
-
 
 export default loanRoutes;

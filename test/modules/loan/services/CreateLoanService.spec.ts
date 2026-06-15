@@ -16,13 +16,20 @@ import AppError from '@shared/errors/AppError';
 
 const makeLoanRepositoryMock = (): jest.Mocked<ILoanRepository> => ({
   findById: jest.fn(),
+  findByUserId: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
 });
 
 const makeCopyRepositoryMock = (): jest.Mocked<ICopyRepository> => ({
+  create: jest.fn(),
+  findAll: jest.fn(),
   findById: jest.fn(),
+  findByBarcode: jest.fn(),
+  update: jest.fn(),
   updateStatus: jest.fn(),
+  delete: jest.fn(),
+  countByTitleAndStatus: jest.fn(),
 });
 
 const makeUserRepositoryMock = (): jest.Mocked<IUserRepository> => ({
