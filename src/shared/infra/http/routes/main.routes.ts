@@ -9,6 +9,7 @@ import fineRoutes from '@modules/fine/infra/http/routes/FineRoutes';
 import copyRoutes from '@modules/copy/infra/http/routes/CopyRoutes';
 import reservedTitleRoutes from '@modules/reservedTitle/infra/http/routes/ReservedTitleRoutes';
 import subscriptionRoutes from '@modules/subscription/infra/http/routes/SubscriptionRoutes';
+import lossRoutes from '@modules/loss/infra/http/routes/LossRoute';
 
 const routes = Router();
 
@@ -27,6 +28,7 @@ routes.use('/v1/api/titles', titleRoutes);
 routes.use('/v1/api/loans', loanRoutes);
 routes.use('/v1/api/fines', fineRoutes);
 routes.use('/v1/api/copy', copyRoutes);
+routes.use('/v1/api/loss', lossRoutes);
 routes.use('/v1/api/reserved-titles', reservedTitleRoutes);
 routes.use('/v1/api/subscriptions', subscriptionRoutes);
 
