@@ -3,6 +3,7 @@ import { Router } from 'express';
 import UserController from '../controllers/UserController';
 import isAuthenticate from '@shared/infra/http/middlewares/isAutenticate';
 import { UserRole } from '@modules/user/infra/typeorm/entities/User';
+import isTeacher from '@shared/infra/http/middlewares/isTeacher';
 
 const userRoutes = Router();
 const userController = new UserController();
@@ -71,9 +72,13 @@ userRoutes.get('/info', isAuthenticate, userController.getMyDetails);
  * @returns 409 - Email ou matrícula já cadastrados por outro usuário
  */
 userRoutes.put(
-  '/',
+  '/:id',
   isAuthenticate,
+  isTeacher,
   celebrate({
+    [Segments.PARAMS]: Joi.object({
+      id: Joi.string().uuid().required(),
+    }),
     [Segments.BODY]: Joi.object({
       name: Joi.string().min(3).max(255).required().messages({
         'string.min': 'Nome deve ter pelo menos 3 caracteres.',
