@@ -3,11 +3,13 @@ import { IUserRepository } from '../domain/repositories/IUserRepository';
 import AppError from '@shared/errors/AppError';
 import { IUser } from '../domain/models/IUser';
 import { inject, injectable } from 'tsyringe';
+import { UserRole } from '../infra/typeorm/entities/User';
 
 interface IRequest {
   id: string;
   name: string;
   email: string;
+  role: UserRole;
   registrationNumber: string;
   phone?: string | null;
 }
@@ -23,6 +25,7 @@ class UpdateUserService {
     id,
     name,
     email,
+    role,
     registrationNumber,
     phone,
   }: IRequest): Promise<IUser> {
@@ -46,8 +49,13 @@ class UpdateUserService {
       }
     }
 
+    if (role !== UserRole.READER && role !== UserRole.TEACHER) {
+      throw new AppError('Role inválido', 400);
+    }
+
     user.name = name;
     user.email = email;
+    user.role = role;
     user.registrationNumber = registrationNumber;
     user.phone = phone ?? null;
 

@@ -89,6 +89,10 @@ userRoutes.put(
       phone: Joi.string().max(20).optional().allow(null).messages({
         'string.max': 'Telefone deve ter no máximo 20 caracteres.',
       }),
+      role: Joi.string().valid('reader', 'teacher').required().messages({
+        'any.only': 'Role inválido.',
+        'any.required': 'Role é obrigatório.',
+      }),
     }),
   }),
   (req, res) => userController.update(req, res)
